@@ -6,7 +6,7 @@ services:
       ZOOKEEPER_TICK_TIME: 2000
     ports:
       - 2181:2181
-    
+
   kafka:
     image: confluentinc/cp-kafka:latest
     depends_on:
@@ -21,3 +21,35 @@ services:
       KAFKA_LISTENER_SECURITY_PROTOCOL_MAP: PLAINTEXT:PLAINTEXT,PLAINTEXT_HOST:PLAINTEXT
       KAFKA_INTER_BROKER_LISTENER_NAME: PLAINTEXT
       KAFKA_OFFSETS_TOPIC_REPLICATION_FACTOR: 1
+    volumes:
+      - kafka_data:/var/lib/kafka
+
+  influxdb:
+    image: influxdb:latest
+    container_name: influxdb
+    ports:
+      - 8086:8086
+    environment:
+      - INFLUXDB_DB=iot_data
+      - INFLUXDB_ADMIN_USER=admin
+      - INFLUXDB_ADMIN_PASSWORD=admin_password
+    volumes:
+      - influxdb_data:/var/lib/influxdb
+
+  grafana:
+    image: grafana/grafana:latest
+    container_name: grafana
+    depends_on:
+      - influxdb
+    ports:
+      - 3000:3000
+    environment:
+      - GF_SECURITY_ADMIN_USER=admin
+      - GF_SECURITY_ADMIN_PASSWORD=admin
+    volumes:
+      - grafana_data:/var/lib/grafana
+
+volumes:
+  kafka_data:
+  influxdb_data:
+  grafana_data:

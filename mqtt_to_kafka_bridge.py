@@ -3,24 +3,21 @@ import random
 import time
 from datetime import datetime
 from confluent_kafka import Producer
-from dotenv import load_dotenv
-import os
-
-load_dotenv()
-
-# Kafka Configuration
-KAFKA_BROKER = os.getenv("IOT_KAFKA_BROKER")
-KAFKA_TOPIC = os.getenv("IOT_KAFKA_TOPIC")
+from config import KAFKA_BROKER, KAFKA_TOPIC
 
 # Kafka Producer setup
-kafka_producer = Producer({'bootstrap.servers': KAFKA_BROKER})
+kafka_producer = Producer({"bootstrap.servers": KAFKA_BROKER})
+
 
 # Kafka delivery confirmation callback
 def kafka_delivery_callback(err, msg):
     if err:
         print(f"Failed to deliver message to Kafka: {err}")
     else:
-        print(f"Message delivered to Kafka topic {msg.topic()} [partition {msg.partition()}]")
+        print(
+            f"Message delivered to Kafka topic {msg.topic()} [partition {msg.partition()}]"
+        )
+
 
 # Function to generate random JSON messages
 def generate_random_message():
@@ -34,8 +31,9 @@ def generate_random_message():
         "zone_code": zone_code,
         "location_ping": location_ping,
         "timestamp": timestamp,
-        "purchase_code": purchase_code
+        "purchase_code": purchase_code,
     }
+
 
 def main():
     print("Starting MQTT to Kafka message simulator...")
@@ -46,23 +44,22 @@ def main():
         try:
             # Generate a random message
             message = generate_random_message()
-            
+
             # Produce message to Kafka
             kafka_producer.produce(
-                KAFKA_TOPIC,
-                value=json.dumps(message),
-                callback=kafka_delivery_callback
+                KAFKA_TOPIC, value=json.dumps(message), callback=kafka_delivery_callback
             )
-            
+
             # kafka_producer.flush()  # Ensure the message is sent immediately
             print(f"Sent message: {message}")
-            
+
             # Simulate real-time data streaming with a delay
             time.sleep(random.uniform(0.5, 2.0))  # Random delay between messages
         except Exception as e:
             print(f"Error during message generation or Kafka delivery: {e}")
 
     print("Finished MQTT to Kafka simulation after 1 hour.")
+
 
 if __name__ == "__main__":
     main()
