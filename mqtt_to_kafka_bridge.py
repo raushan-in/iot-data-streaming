@@ -1,3 +1,6 @@
+'''
+Responsible for generating RFID data and sending it to Kafka
+'''
 import json
 import random
 import time
